@@ -17,13 +17,13 @@
 
 $opts = getopt("", ["make:", "relative:", "out:", "entry:", "compress"]);
 
-if(!isset($opts["make"])){
+if (!isset($opts["make"])) {
 	echo "== PocketMine-MP DevTools CLI interface ==\n\n";
-	echo "Usage: ". PHP_BINARY ." -dphar.readonly=0 ".$argv[0]." --make <sourceFolder> --relative <relativePath> --entry \"relativeSourcePath.php\" --out <pharName.phar>\n";
+	echo "Usage: " . PHP_BINARY . " -dphar.readonly=0 " . $argv[0] . " --make <sourceFolder> --relative <relativePath> --entry \"relativeSourcePath.php\" --out <pharName.phar>\n";
 	exit(0);
 }
 
-if(ini_get("phar.readonly") == 1){
+if (ini_get("phar.readonly") == 1) {
 	echo "Set phar.readonly to 0 with -dphar.readonly=0\n";
 	exit(1);
 }
@@ -34,18 +34,18 @@ $pharName = isset($opts["out"]) ? $opts["out"] : "output.phar";
 
 
 
-if(!is_dir($folderPath)){
+if (!is_dir($folderPath)) {
 	echo $folderPath ." is not a folder\n";
 	exit(1);
 }
 
 echo "\nCreating ".$pharName."...\n";
 $phar = new \Phar($pharName);
-if(isset($opts["entry"]) and $opts["entry"] != null){
+if (isset($opts["entry"]) && $opts["entry"] != null) {
 	$entry = addslashes(str_replace("\\", "/", $opts["entry"]));
 	echo "Setting entry point to ".$entry."\n";
 	$phar->setStub('<?php require("phar://". __FILE__ ."/'.$entry.'"); __HALT_COMPILER();');
-}else{
+} else {
 	echo "No entry point set\n";
 	$phar->setStub('<?php __HALT_COMPILER();');
 }
@@ -54,13 +54,13 @@ $phar->startBuffering();
 echo "Adding files...\n";
 $maxLen = 0;
 $count = 0;
-foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folderPath)) as $file){
+foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folderPath)) as $file) {
 	$path = rtrim(str_replace(["\\", $relativePath], ["/", ""], $file), "/");
-	if($path{0} === "." or strpos($path, "/.") !== false){
+	if ($path{0} === "." || strpos($path, "/.") !== false) {
 		continue;
 	}
 	$phar->addFile($file, $path);
-	if(strlen($path) > $maxLen){
+	if (strlen($path) > $maxLen) {
 		$maxLen = strlen($path);
 	}
 	echo "\r[".(++$count)."] ".str_pad($path, $maxLen, " ");

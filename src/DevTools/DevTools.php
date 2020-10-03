@@ -31,16 +31,16 @@ use pocketmine\plugin\PluginLoadOrder;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
-class DevTools extends PluginBase implements CommandExecutor{
+class DevTools extends PluginBase implements CommandExecutor {
 
-	public function onLoad(){
+	public function onLoad() {
 		$this->getServer()->getCommandMap()->register("devtools", new ExtractPluginCommand($this));
 	}
 
-	public function onEnable(){
+	public function onEnable() {
 		@mkdir($this->getDataFolder());
 
-		if(!class_exists("FolderPluginLoader\\FolderPluginLoader", false)){
+		if (!class_exists("FolderPluginLoader\\FolderPluginLoader", false)) {
 			$this->getServer()->getPluginManager()->registerInterface("FolderPluginLoader\\FolderPluginLoader");
 			$this->getServer()->getPluginManager()->loadPlugins($this->getServer()->getPluginPath(), ["FolderPluginLoader\\FolderPluginLoader"]);
 			$this->getLogger()->info("Registered folder plugin loader");
@@ -48,12 +48,12 @@ class DevTools extends PluginBase implements CommandExecutor{
 		}
 	}
 
-	public function onCommand(CommandSender $sender, Command $command, $label, array $args){
-		switch($command->getName()){
+	public function onCommand(CommandSender $sender, Command $command, $label, array $args) {
+		switch ($command->getName()) {
 			case "makeplugin":
-				if(isset($args[0]) and $args[0] === "FolderPluginLoader"){
+				if (isset($args[0]) && $args[0] === "FolderPluginLoader") {
 					return $this->makePluginLoader($sender, $command, $label, $args);
-				}else{
+				} else {
 					return $this->makePluginCommand($sender, $command, $label, $args);
 				}
 			case "makeserver":
@@ -65,47 +65,47 @@ class DevTools extends PluginBase implements CommandExecutor{
 		}
 	}
 
-	private function permissionCheckCommand(CommandSender $sender, Command $command, $label, array $args){
+	private function permissionCheckCommand(CommandSender $sender, Command $command, $label, array $args) {
 		$target = $sender;
-		if(!isset($args[0])){
+		if (!isset($args[0])) {
 			return false;
 		}
 		$node = strtolower($args[0]);
-		if(isset($args[1])){
-			if(($player = $this->getServer()->getPlayer($args[1])) instanceof Player){
+		if (isset($args[1])) {
+			if (($player = $this->getServer()->getPlayer($args[1])) instanceof Player) {
 				$target = $player;
-			}else{
+			} else {
 				return false;
 			}
 		}
 
-		if($target !== $sender and !$sender->hasPermission("devtools.command.checkperm.other")){
+		if ($target !== $sender && !$sender->hasPermission("devtools.command.checkperm.other")) {
 			$sender->sendMessage(TextFormat::RED . "You do not have permissions to check other players.");
 			return true;
-		}else{
-			$sender->sendMessage(TextFormat::GREEN . "---- ".TextFormat::WHITE . "Permission node ".$node.TextFormat::GREEN. " ----");
+		} else {
+			$sender->sendMessage(TextFormat::GREEN . "---- " . TextFormat::WHITE . "Permission node " . $node . TextFormat::GREEN . " ----");
 			$perm = $this->getServer()->getPluginManager()->getPermission($node);
-			if($perm instanceof Permission){
-				$desc = TextFormat::GOLD . "Description: ".TextFormat::WHITE . $perm->getDescription()."\n";
-				$desc .= TextFormat::GOLD . "Default: ".TextFormat::WHITE . $perm->getDefault()."\n";
+			if ($perm instanceof Permission) {
+				$desc = TextFormat::GOLD . "Description: " . TextFormat::WHITE . $perm->getDescription() . "\n";
+				$desc .= TextFormat::GOLD . "Default: " . TextFormat::WHITE . $perm->getDefault() . "\n";
 				$children = "";
-				foreach($perm->getChildren() as $name => $true){
+				foreach ($perm->getChildren() as $name => $true) {
 					$children .= $name . ", ";
 				}
-				$desc .= TextFormat::GOLD . "Children: ".TextFormat::WHITE . substr($children, 0, -2)."\n";
-			}else{
+				$desc .= TextFormat::GOLD . "Children: " . TextFormat::WHITE . substr($children, 0, -2) . "\n";
+			} else {
 				$desc = TextFormat::RED . "Permission does not exist\n";
-				$desc .= TextFormat::GOLD . "Default: ".TextFormat::WHITE . Permission::$DEFAULT_PERMISSION."\n";
+				$desc .= TextFormat::GOLD . "Default: " . TextFormat::WHITE . Permission::$DEFAULT_PERMISSION . "\n";
 			}
 			$sender->sendMessage($desc);
-			$sender->sendMessage(TextFormat::YELLOW . $target->getName() . TextFormat::WHITE . " has it set to ".($target->hasPermission($node) === true ? TextFormat::GREEN . "true" : TextFormat::RED . "false"));
+			$sender->sendMessage(TextFormat::YELLOW . $target->getName() . TextFormat::WHITE . " has it set to " . ($target->hasPermission($node) === true ? TextFormat::GREEN . "true" : TextFormat::RED . "false"));
 			return true;
 		}
 	}
 
-	private function makePluginLoader(CommandSender $sender, Command $command, $label, array $args){
+	private function makePluginLoader(CommandSender $sender, Command $command, $label, array $args) {
 		$pharPath = $this->getDataFolder() . DIRECTORY_SEPARATOR . "FolderPluginLoader.phar";
-		if(file_exists($pharPath)){
+		if (file_exists($pharPath)) {
 			$sender->sendMessage("Phar plugin already exists, overwriting...");
 			@unlink($pharPath);
 		}
@@ -129,32 +129,32 @@ class DevTools extends PluginBase implements CommandExecutor{
 		$phar->addFile($this->getFile() . "src/FolderPluginLoader/FolderPluginLoader.php", "src/FolderPluginLoader/FolderPluginLoader.php");
 		$phar->addFile($this->getFile() . "src/FolderPluginLoader/Main.php", "src/FolderPluginLoader/Main.php");
 
-		foreach($phar as $file => $finfo){
+		foreach ($phar as $file => $finfo) {
 			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
+			if ($finfo->getSize() > (1024 * 512)) {
 				$finfo->compress(\Phar::GZ);
 			}
 		}
 		$phar->stopBuffering();
-		$sender->sendMessage("Folder plugin loader has been created on ".$pharPath);
+		$sender->sendMessage("Folder plugin loader has been created on " . $pharPath);
 		return true;
 	}
 
-	private function makePluginCommand(CommandSender $sender, Command $command, $label, array $args){
+	private function makePluginCommand(CommandSender $sender, Command $command, $label, array $args) {
 		$pluginName = trim(implode(" ", $args));
-		if($pluginName === "" or !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)){
+		if ($pluginName === "" || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
 			$sender->sendMessage(TextFormat::RED . "Invalid plugin name, check the name case.");
 			return true;
 		}
 		$description = $plugin->getDescription();
 
-		if(!($plugin->getPluginLoader() instanceof FolderPluginLoader)){
-			$sender->sendMessage(TextFormat::RED . "Plugin ".$description->getName()." is not in folder structure.");
+		if (!($plugin->getPluginLoader() instanceof FolderPluginLoader)) {
+			$sender->sendMessage(TextFormat::RED . "Plugin " . $description->getName() . " is not in folder structure.");
 			return true;
 		}
 
-		$pharPath = $this->getDataFolder() . DIRECTORY_SEPARATOR . $description->getName()."_v".$description->getVersion().".phar";
-		if(file_exists($pharPath)){
+		$pharPath = $this->getDataFolder() . DIRECTORY_SEPARATOR . $description->getName() . "_v" . $description->getVersion() . ".phar";
+		if (file_exists($pharPath)) {
 			$sender->sendMessage("Phar plugin already exists, overwriting...");
 			@unlink($pharPath);
 		}
@@ -170,10 +170,10 @@ class DevTools extends PluginBase implements CommandExecutor{
 			"website" => $description->getWebsite(),
 			"creationDate" => time()
 		]);
-		if($description->getName() === "DevTools"){
+		if ($description->getName() === "DevTools") {
 			$phar->setStub('<?php require("phar://". __FILE__ ."/src/DevTools/ConsoleScript.php"); __HALT_COMPILER();');
-		}else{
-			$phar->setStub('<?php echo "PocketMine-MP plugin '.$description->getName() .' v'.$description->getVersion().'\nThis file has been generated using DevTools v'.$this->getDescription()->getVersion().' at '.date("r").'\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
+		} else {
+			$phar->setStub('<?php echo "PocketMine-MP plugin ' . $description->getName() . ' v' . $description->getVersion() . '\nThis file has been generated using DevTools v' . $this->getDescription()->getVersion() . ' at ' . date("r") . '\n----------------\n";if(extension_loaded("phar")){$phar = new \Phar(__FILE__);foreach($phar->getMetadata() as $key => $value){echo ucfirst($key).": ".(is_array($value) ? implode(", ", $value):$value)."\n";}} __HALT_COMPILER();');
 		}
 		$phar->setSignatureAlgorithm(\Phar::SHA1);
 		$reflection = new \ReflectionClass("pocketmine\\plugin\\PluginBase");
@@ -181,30 +181,30 @@ class DevTools extends PluginBase implements CommandExecutor{
 		$file->setAccessible(true);
 		$filePath = rtrim(str_replace("\\", "/", $file->getValue($plugin)), "/") . "/";
 		$phar->startBuffering();
-		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $file){
+		foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath)) as $file) {
 			$path = ltrim(str_replace(["\\", $filePath], ["/", ""], $file), "/");
-			if($path{0} === "." or strpos($path, "/.") !== false){
+			if ($path{0} === "." || strpos($path, "/.") !== false) {
 				continue;
 			}
 			$phar->addFile($file, $path);
 			$sender->sendMessage("[DevTools] Adding $path");
 		}
 
-		foreach($phar as $file => $finfo){
+		foreach ($phar as $file => $finfo) {
 			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
+			if ($finfo->getSize() > (1024 * 512)) {
 				$finfo->compress(\Phar::GZ);
 			}
 		}
 		$phar->stopBuffering();
-		$sender->sendMessage("Phar plugin ".$description->getName() ." v".$description->getVersion()." has been created on ".$pharPath);
+		$sender->sendMessage("Phar plugin " . $description->getName() . " v" . $description->getVersion() . " has been created on " . $pharPath);
 		return true;
 	}
 
-	private function makeServerCommand(CommandSender $sender, Command $command, $label, array $args){
+	private function makeServerCommand(CommandSender $sender, Command $command, $label, array $args) {
 		$server = $sender->getServer();
-		$pharPath = $this->getDataFolder() . DIRECTORY_SEPARATOR . $server->getName()."_".$server->getPocketMineVersion().".phar";
-		if(file_exists($pharPath)){
+		$pharPath = $this->getDataFolder() . DIRECTORY_SEPARATOR . $server->getName() . "_" . $server->getPocketMineVersion() . ".phar";
+		if (file_exists($pharPath)) {
 			$sender->sendMessage("Phar file already exists, overwriting...");
 			@unlink($pharPath);
 		}
@@ -223,23 +223,23 @@ class DevTools extends PluginBase implements CommandExecutor{
 
 		$filePath = substr(\pocketmine\PATH, 0, 7) === "phar://" ? \pocketmine\PATH : realpath(\pocketmine\PATH) . "/";
 		$filePath = rtrim(str_replace("\\", "/", $filePath), "/") . "/";
-		foreach(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath . "src")) as $file){
+		foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath . "src")) as $file) {
 			$path = ltrim(str_replace(["\\", $filePath], ["/", ""], $file), "/");
-			if($path{0} === "." or strpos($path, "/.") !== false or substr($path, 0, 4) !== "src/"){
+			if ($path{0} === "." || strpos($path, "/.") !== false || substr($path, 0, 4) !== "src/") {
 				continue;
 			}
 			$phar->addFile($file, $path);
 			$sender->sendMessage("[DevTools] Adding $path");
 		}
-		foreach($phar as $file => $finfo){
+		foreach ($phar as $file => $finfo) {
 			/** @var \PharFileInfo $finfo */
-			if($finfo->getSize() > (1024 * 512)){
+			if ($finfo->getSize() > (1024 * 512)) {
 				$finfo->compress(\Phar::GZ);
 			}
 		}
 		$phar->stopBuffering();
 
-		$sender->sendMessage($server->getName() . " " . $server->getPocketMineVersion() . " Phar file has been created on ".$pharPath);
+		$sender->sendMessage($server->getName() . " " . $server->getPocketMineVersion() . " Phar file has been created on " . $pharPath);
 
 		return true;
 	}
