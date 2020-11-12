@@ -48,7 +48,7 @@ class ExtractPluginCommand extends DevToolsCommand {
 		}
 
 		$pluginName = trim(implode(" ", $args));
-		if ($pluginName === "" || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
+		if (($pluginName === "") || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
 			$sender->sendMessage(TextFormat::RED . "Invalid plugin name, check the name case.");
 			return true;
 		}
