@@ -79,7 +79,7 @@ class DevTools extends PluginBase implements CommandExecutor {
 			}
 		}
 
-		if ($target !== $sender && !$sender->hasPermission("devtools.command.checkperm.other")) {
+		if (($target !== $sender) && !$sender->hasPermission("devtools.command.checkperm.other")) {
 			$sender->sendMessage(TextFormat::RED . "You do not have permissions to check other players.");
 			return true;
 		} else {
