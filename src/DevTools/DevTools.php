@@ -142,7 +142,7 @@ class DevTools extends PluginBase implements CommandExecutor {
 
 	private function makePluginCommand(CommandSender $sender, Command $command, $label, array $args) {
 		$pluginName = trim(implode(" ", $args));
-		if ($pluginName === "" || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
+		if (($pluginName === "") || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
 			$sender->sendMessage(TextFormat::RED . "Invalid plugin name, check the name case.");
 			return true;
 		}
