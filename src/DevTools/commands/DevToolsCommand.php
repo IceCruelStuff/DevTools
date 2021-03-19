@@ -24,16 +24,15 @@ use pocketmine\command\PluginIdentifiableCommand;
 abstract class DevToolsCommand extends Command implements PluginIdentifiableCommand {
 
 	/** @var \pocketmine\plugin\Plugin */
-	private $owningPlugin;
+	private $plugin;
 
 	public function __construct($name, DevTools $plugin) {
 		parent::__construct($name);
-		$this->owningPlugin = $plugin;
-		$this->usageMessage = "";
+		$this->plugin = $plugin;
 	}
 
 	public function getPlugin() {
-		return $this->owningPlugin;
+		return $this->plugin;
 	}
 
 }

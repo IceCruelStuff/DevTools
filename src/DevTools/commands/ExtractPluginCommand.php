@@ -33,7 +33,7 @@ class ExtractPluginCommand extends DevToolsCommand {
 		$this->setPermission("devtools.command.extractplugin");
 	}
 
-	public function execute(CommandSender $sender, $commandLabel, array $args) {
+	public function execute(CommandSender $sender, $label, array $args) {
 		if (!$this->getPlugin()->isEnabled()) {
 			return false;
 		}
@@ -48,7 +48,8 @@ class ExtractPluginCommand extends DevToolsCommand {
 		}
 
 		$pluginName = trim(implode(" ", $args));
-		if (($pluginName === "") || !(($plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName)) instanceof Plugin)) {
+		$plugin = Server::getInstance()->getPluginManager()->getPlugin($pluginName);
+		if ($pluginName === "" || !$plugin instanceof Plugin) {
 			$sender->sendMessage(TextFormat::RED . "Invalid plugin name, check the name case.");
 			return true;
 		}
